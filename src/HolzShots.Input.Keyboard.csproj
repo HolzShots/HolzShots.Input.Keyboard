@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>HolzShots.Input.Keyboard</RootNamespace>
+
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <Version>2.0.0-preview.3</Version>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Authors>Niklas Mollenhauer</Authors>
+    <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
+
+    <PackageProjectUrl>https://holzshots.net</PackageProjectUrl>
+
+    <LangVersion>latest</LangVersion>
+    <ErrorReport>none</ErrorReport>
+
+    <MinimumPlatformVersion>10.0.17763.0</MinimumPlatformVersion>
+    <RepositoryUrl>https://github.com/HolzShots/HolzShots.Input.Keyboard</RepositoryUrl>
+
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+
+  <PropertyGroup>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Collections.Immutable" Version="7.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
+  </ItemGroup>
+
+</Project>
