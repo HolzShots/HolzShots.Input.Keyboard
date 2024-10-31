@@ -14,8 +14,7 @@ public abstract class KeyboardHook : IDisposable
 
     protected void KeyPressed(object? sender, KeyPressedEventArgs args)
     {
-        if (args == null)
-            throw new ArgumentNullException(nameof(args));
+        ArgumentNullException.ThrowIfNull(args);
 
         var key = args.GetIdentifier();
 

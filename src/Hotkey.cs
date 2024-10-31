@@ -72,8 +72,7 @@ public class Hotkey
     }
     public static Hotkey FromKeyboardEvent(KeyEventArgs e)
     {
-        if (e == null)
-            throw new ArgumentNullException(nameof(e));
+        ArgumentNullException.ThrowIfNull(e);
 
         var modKeys = ModifierKeys.None;
         var k = e.KeyCode;

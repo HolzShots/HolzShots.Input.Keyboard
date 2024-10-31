@@ -22,8 +22,7 @@ public sealed class WindowsKeyboardHook : KeyboardHook
     {
         System.Diagnostics.Trace.WriteLine($"Thread ID Register: {Thread.CurrentThread.ManagedThreadId}");
 
-        if (hotkey == null)
-            throw new ArgumentNullException(nameof(hotkey));
+        ArgumentNullException.ThrowIfNull(hotkey);
 
         var id = hotkey.GetHashCode();
         if (RegisteredKeys.ContainsKey(id))
@@ -47,8 +46,7 @@ public sealed class WindowsKeyboardHook : KeyboardHook
     {
         System.Diagnostics.Trace.WriteLine($"Thread ID Unregister: {Thread.CurrentThread.ManagedThreadId}");
 
-        if (hotkey == null)
-            throw new ArgumentNullException(nameof(hotkey));
+        ArgumentNullException.ThrowIfNull(hotkey);
 
         var id = hotkey.GetHashCode();
         if (!RegisteredKeys.ContainsKey(id))
