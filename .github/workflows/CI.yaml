@@ -17,8 +17,9 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-      - name: Build
-        run: dotnet build --configuration Release
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.x
+      - run: dotnet build --configuration Release
 
