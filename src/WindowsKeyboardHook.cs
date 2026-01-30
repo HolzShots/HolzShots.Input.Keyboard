@@ -25,7 +25,7 @@ public sealed class WindowsKeyboardHook : KeyboardHook
         ArgumentNullException.ThrowIfNull(hotkey);
 
         var id = hotkey.GetHashCode();
-        if (RegisteredKeys.ContainsKey(id))
+        if (!RegisteredKeys.TryAdd(id, hotkey))
             throw new HotkeyRegistrationException(hotkey, new InvalidOperationException("Hotkey already registered."));
 
         try
@@ -34,9 +34,9 @@ public sealed class WindowsKeyboardHook : KeyboardHook
         }
         catch (Win32Exception ex)
         {
+            RegisteredKeys.Remove(id); // Rollback the add
             throw new HotkeyRegistrationException(hotkey, ex);
         }
-        RegisteredKeys.Add(id, hotkey);
     }
 
     /// <summary>Unregisters a hotkey in the system.</summary>
@@ -49,19 +49,19 @@ public sealed class WindowsKeyboardHook : KeyboardHook
         ArgumentNullException.ThrowIfNull(hotkey);
 
         var id = hotkey.GetHashCode();
-        if (!RegisteredKeys.ContainsKey(id))
+        if (!RegisteredKeys.Remove(id))
             throw new HotkeyRegistrationException(hotkey, new InvalidOperationException("Hotkey not registered."));
 
         try
         {
             _window.UnregisterHotkey(id);
+            hotkey.RemoveAllEventHandlers();
         }
         catch (Win32Exception ex)
         {
+            RegisteredKeys.Add(id, hotkey); // Rollback the remove
             throw new HotkeyRegistrationException(hotkey, ex);
         }
-        hotkey.RemoveAllEventHandlers();
-        RegisteredKeys.Remove(id);
     }
 
     public override void UnregisterAllHotkeys()

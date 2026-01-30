@@ -130,7 +130,7 @@ public class Hotkey
         }
     }
 
-    private readonly System.Collections.Generic.HashSet<EventHandler<HotkeyPressedEventArgs>> _delegates = new System.Collections.Generic.HashSet<EventHandler<HotkeyPressedEventArgs>>();
+    private readonly HashSet<EventHandler<HotkeyPressedEventArgs>> _delegates = [];
     private event EventHandler<HotkeyPressedEventArgs>? _keyPressed;
 
     /// <summary>The hotkey has been pressed.</summary>
