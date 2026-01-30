@@ -5,21 +5,11 @@ namespace HolzShots.Input.Keyboard;
 
 public static class KeyboardHookSelector
 {
-    public static KeyboardHook CreateHookForCurrentPlatform(ISynchronizeInvoke invoke)
-    {
-        switch (Environment.OSVersion.Platform)
+    public static KeyboardHook CreateHookForCurrentPlatform(ISynchronizeInvoke invoke) =>
+        Environment.OSVersion.Platform switch
         {
-            case PlatformID.Win32S:
-            case PlatformID.Win32Windows:
-            case PlatformID.Win32NT:
-            case PlatformID.WinCE:
-                return new WindowsKeyboardHook(invoke);
-            case PlatformID.Unix:
-            case PlatformID.MacOSX:
-            case PlatformID.Xbox:
-            default:
-                Debug.Fail($"Unhandled platform: {Environment.OSVersion.Platform}");
-                throw new NotSupportedException();
-        }
-    }
+            PlatformID.Win32S or PlatformID.Win32Windows or PlatformID.Win32NT or PlatformID.WinCE
+                => new WindowsKeyboardHook(invoke),
+            _ => throw new NotSupportedException($"Unhandled platform: {Environment.OSVersion.Platform}")
+        };
 }
