@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 15
 
     permissions:
-      id-token: write  # needed for trusted publish to nuget
+      id-token: write # needed for trusted publish to nuget
 
     steps:
       - uses: actions/checkout@v6
