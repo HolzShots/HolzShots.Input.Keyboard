@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Threading;
 
 namespace HolzShots.Input.Keyboard;
 
@@ -6,7 +7,7 @@ public sealed class WindowsKeyboardHook : KeyboardHook
 {
     private readonly HotkeyWindowHost _window;
     private readonly ISynchronizeInvoke _synchronizer;
-    private readonly object _lockObj = new();
+    private readonly Lock _lockObj = new();
 
     public WindowsKeyboardHook(ISynchronizeInvoke synchronizer)
     {
