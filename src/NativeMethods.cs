@@ -8,9 +8,9 @@ internal static partial class NativeMethods
 
     [LibraryImport(User32, SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool RegisterHotKey(IntPtr hWnd, int id, ModifierKeys fsModifiers, Keys vk);
+    internal static partial bool RegisterHotKey(nint hWnd, int id, ModifierKeys fsModifiers, Keys vk);
 
     [LibraryImport(User32, SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    internal static partial bool UnregisterHotKey(IntPtr hWnd, int id);
+    internal static partial bool UnregisterHotKey(nint hWnd, int id);
 }
