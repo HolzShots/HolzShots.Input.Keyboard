@@ -84,9 +84,9 @@ public sealed class WindowsKeyboardHook : KeyboardHook
     private bool _isDisposed;
     protected override void Dispose(bool disposing)
     {
-        base.Dispose(disposing);
         if (!_isDisposed)
         {
+            base.Dispose(disposing); // unregisters all hotkeys
             _window.Dispose(); // dispose the inner native window.
             _isDisposed = true;
         }

@@ -24,7 +24,7 @@ public abstract class KeyboardHook : IDisposable
 
     #region IDisposable Members
 
-    //private bool _isDisposed;
+    private bool _isDisposed;
     public void Dispose()
     {
         Dispose(true);
@@ -33,11 +33,11 @@ public abstract class KeyboardHook : IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
-        //if (!_isDisposed)
-        //{
-        //    UnregisterAllHotkeys();
-        //    _isDisposed = true;
-        //}
+        if (!_isDisposed)
+        {
+            UnregisterAllHotkeys();
+            _isDisposed = true;
+        }
     }
 
     ~KeyboardHook() => Dispose(false);
