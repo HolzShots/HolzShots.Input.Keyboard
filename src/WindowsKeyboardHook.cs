@@ -20,8 +20,6 @@ public sealed class WindowsKeyboardHook : KeyboardHook
 
     private void RegisterHotkeyInternal(Hotkey hotkey)
     {
-        System.Diagnostics.Trace.WriteLine($"Thread ID Register: {Thread.CurrentThread.ManagedThreadId}");
-
         ArgumentNullException.ThrowIfNull(hotkey);
 
         var id = hotkey.GetHashCode();
@@ -44,8 +42,6 @@ public sealed class WindowsKeyboardHook : KeyboardHook
 
     private void UnregisterHotkeyInternal(Hotkey hotkey)
     {
-        System.Diagnostics.Trace.WriteLine($"Thread ID Unregister: {Thread.CurrentThread.ManagedThreadId}");
-
         ArgumentNullException.ThrowIfNull(hotkey);
 
         var id = hotkey.GetHashCode();
