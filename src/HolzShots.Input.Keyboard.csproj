@@ -48,7 +48,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.ILLink.Tasks" Version="10.0.7" />
     <PackageReference Include="System.Collections.Immutable" Version="10.0.7" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.6" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.7" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.203" PrivateAssets="All"/>
   </ItemGroup>
 
