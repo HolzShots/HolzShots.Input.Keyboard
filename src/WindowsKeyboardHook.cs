@@ -11,9 +11,11 @@ public sealed class WindowsKeyboardHook : KeyboardHook
     {
         ArgumentNullException.ThrowIfNull(synchronizer);
 
-        _window = new HotkeyWindowHost();
-        _window.KeyPressed += KeyPressed; // register the event of the inner native window.
         _synchronizer = synchronizer;
+        // RegisterHotKey fails with ERROR_WINDOW_OF_OTHER_THREAD for windows created by another thread,
+        // and WM_HOTKEY is dispatched by the message loop of the window's thread. So the window must live on the synchronizer's thread.
+        _window = InvokeWrapper(() => new HotkeyWindowHost());
+        _window.KeyPressed += KeyPressed; // register the event of the inner native window.
     }
 
     /// <summary>Registers a hotkey in the system.</summary>
@@ -79,6 +81,10 @@ public sealed class WindowsKeyboardHook : KeyboardHook
         }
         _synchronizer.Invoke(action, null);
     }
+
+    private T InvokeWrapper<T>(Func<T> func) => _synchronizer.InvokeRequired
+        ? (T)_synchronizer.Invoke(func, null)!
+        : func();
 
     private bool _isDisposed;
     protected override void Dispose(bool disposing)
