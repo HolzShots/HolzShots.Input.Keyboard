@@ -63,12 +63,26 @@ public sealed class WindowsKeyboardHook : KeyboardHook
         }
     }
 
+    /// <summary>Unregisters all hotkeys. Every hotkey is attempted; failures are collected and thrown afterwards.</summary>
     public override void UnregisterAllHotkeys() => InvokeWrapper(() =>
     {
-        // unregister all the registered hotkeys.
+        List<HotkeyRegistrationException>? failures = null;
+
         var toUnregister = new List<Hotkey>(RegisteredKeys.Values);
-        foreach (var key in toUnregister)
-            UnregisterHotkey(key);
+        foreach (var hotkey in toUnregister)
+        {
+            try
+            {
+                UnregisterHotkeyInternal(hotkey);
+            }
+            catch (HotkeyRegistrationException ex)
+            {
+                (failures ??= []).Add(ex);
+            }
+        }
+
+        if (failures is not null)
+            throw new HotkeyRegistrationException($"Failed to unregister {failures.Count} hotkey(s).", new AggregateException(failures));
     });
 
     /// <summary>Runs <paramref name="action"/> synchronously on the synchronizer's thread, so exceptions reach the caller.</summary>

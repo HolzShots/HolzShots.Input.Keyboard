@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace HolzShots.Input.Keyboard;
 
 public abstract class KeyboardHook : IDisposable
@@ -38,8 +40,18 @@ public abstract class KeyboardHook : IDisposable
     /// <remarks>Only called once. Derived classes must not touch other managed objects when <paramref name="disposing"/> is false.</remarks>
     protected virtual void Dispose(bool disposing)
     {
-        if (disposing)
+        if (!disposing)
+            return;
+
+        try
+        {
             UnregisterAllHotkeys();
+        }
+        catch (HotkeyRegistrationException ex)
+        {
+            // Best effort: Dispose must not throw.
+            Trace.WriteLine($"Failed to unregister hotkeys during dispose: {ex}");
+        }
     }
 
     #endregion
