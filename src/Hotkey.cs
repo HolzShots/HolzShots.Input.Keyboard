@@ -146,7 +146,7 @@ public class Hotkey : IEquatable<Hotkey>
         return sb.ToString();
     }
 
-    /// <summary>The hotkey has been pressed.</summary>
+    /// <summary>The hotkey has been pressed. All subscribers are removed when the hotkey is unregistered from a <see cref="KeyboardHook"/>.</summary>
     public event EventHandler<HotkeyPressedEventArgs>? KeyPressed;
 
     internal void RemoveAllEventHandlers() => KeyPressed = null;

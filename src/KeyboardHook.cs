@@ -8,8 +8,10 @@ public abstract class KeyboardHook : IDisposable
     public abstract void RegisterHotkey(Hotkey hotkey);
 
     /// <summary>Unregisters a hotkey in the system.</summary>
+    /// <remarks>All <see cref="Hotkey.KeyPressed"/> subscribers of the hotkey are removed, so the same instance can be registered again with a clean slate.</remarks>
     public abstract void UnregisterHotkey(Hotkey hotkey);
 
+    /// <summary>Unregisters all hotkeys registered with this hook. See <see cref="UnregisterHotkey"/> for the effect on their subscribers.</summary>
     public abstract void UnregisterAllHotkeys();
 
     protected void KeyPressed(object? sender, KeyPressedEventArgs args)
