@@ -15,13 +15,18 @@
     <Authors>Niklas Mollenhauer</Authors>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
 
+    <Description>Global hotkey library for Windows Forms applications, used by HolzShots.</Description>
+    <PackageTags>hotkey;global-hotkey;keyboard;winforms;windows</PackageTags>
     <PackageProjectUrl>https://holzshots.net</PackageProjectUrl>
 
     <LangVersion>latest</LangVersion>
     <IsAotCompatible>true</IsAotCompatible>
 
-
     <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- CS1591: Missing XML comment for publicly visible type or member -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>
