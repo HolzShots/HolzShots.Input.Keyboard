@@ -1,59 +1,109 @@
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.ExceptionServices;
+using System.Runtime.InteropServices;
 
 namespace HolzShots.Input.Keyboard;
 
-internal class HotkeyWindowHost : NativeWindow, IDisposable
+/// <summary>A message-only window that receives WM_HOTKEY.</summary>
+/// <remarks>Must be created, used and disposed on the same thread, and that thread must run a message loop.</remarks>
+internal sealed unsafe class HotkeyWindowHost : IDisposable
 {
-    public HotkeyWindowHost() => CreateHandle(new CreateParams()); // create the handle for the window.
+    private const uint WM_HOTKEY = 0x0312;
+    private const nint HWND_MESSAGE = -3;
 
-    public sealed override void CreateHandle(CreateParams cp) => base.CreateHandle(cp);
+    private static readonly Lazy<ushort> WindowClass = new(RegisterWindowClass);
 
-    /// <summary>Overridden to get the notifications.</summary>
-    protected override void WndProc(ref Message m)
+    /// <summary>Maps the window handles to their hosts, so the static window procedure can dispatch to the instance.</summary>
+    private static readonly ConcurrentDictionary<nint, HotkeyWindowHost> Hosts = new();
+
+    private nint _handle;
+
+    public HotkeyWindowHost()
     {
-        const int WM_HOTKEY = 0x0312;
+        _handle = NativeMethods.CreateWindowExW(0, WindowClass.Value, 0, 0, 0, 0, 0, 0, HWND_MESSAGE, 0, NativeMethods.GetModuleHandleW(null), 0);
+        if (_handle == 0)
+            throw new Win32Exception();
 
-        // check if we got a hotkey pressed.
-        if (m.Msg == WM_HOTKEY)
+        Hosts[_handle] = this;
+    }
+
+    private static ushort RegisterWindowClass()
+    {
+        // The guid avoids a collision with a class registered by another copy of this assembly in the same process.
+        fixed (char* className = $"HolzShots.Input.Keyboard.HotkeyWindowHost.{Guid.NewGuid():N}")
         {
-            // wParam is the id the hotkey was registered with, lParam carries the key and the modifiers (without MOD_NOREPEAT).
-            var id = (int)m.WParam;
-            var key = (Keys)(((int)m.LParam >> 16) & 0xFFFF);
-            var modifier = (ModifierKeys)((int)m.LParam & 0xFFFF);
+            var wc = new NativeMethods.WNDCLASSEXW
+            {
+                cbSize = (uint)sizeof(NativeMethods.WNDCLASSEXW),
+                lpfnWndProc = &WndProc,
+                hInstance = NativeMethods.GetModuleHandleW(null),
+                lpszClassName = className,
+            };
 
+            var atom = NativeMethods.RegisterClassExW(&wc);
+            if (atom == 0)
+                throw new Win32Exception();
+            return atom;
+        }
+    }
+
+    [UnmanagedCallersOnly]
+    private static nint WndProc(nint hWnd, uint msg, nint wParam, nint lParam)
+    {
+        if (msg == WM_HOTKEY && Hosts.TryGetValue(hWnd, out var host))
+        {
+            host.OnHotkey(wParam, lParam);
+            return 0;
+        }
+        return NativeMethods.DefWindowProcW(hWnd, msg, wParam, lParam);
+    }
+
+    private void OnHotkey(nint wParam, nint lParam)
+    {
+        // wParam is the id the hotkey was registered with, lParam carries the key and the modifiers (without MOD_NOREPEAT).
+        var id = (int)wParam;
+        var key = (Keys)(((int)lParam >> 16) & 0xFFFF);
+        var modifier = (ModifierKeys)((int)lParam & 0xFFFF);
+
+        try
+        {
             // invoke the event to notify the parent.
             KeyPressed?.Invoke(this, new KeyPressedEventArgs(id, modifier, key));
-            return;
         }
-        base.WndProc(ref m);
+        catch (Exception ex)
+        {
+            // An exception unwinding into the native message loop terminates the process. Rethrow it outside of the window procedure instead,
+            // so it surfaces the same way as any other exception on this thread (e.g. Application.ThreadException in WinForms).
+            var edi = ExceptionDispatchInfo.Capture(ex);
+            (SynchronizationContext.Current ?? new SynchronizationContext()).Post(static state => ((ExceptionDispatchInfo)state!).Throw(), edi);
+        }
     }
 
     public void RegisterHotkey(ModifierKeys modifiers, Keys key, int id)
     {
         Trace.WriteLine($"Registering hotkey: {id} {modifiers} {key}");
-        if (!NativeMethods.RegisterHotKey(Handle, id, modifiers | ModifierKeys.NoRepeat, key))
+        if (!NativeMethods.RegisterHotKey(_handle, id, modifiers | ModifierKeys.NoRepeat, (uint)key))
             throw new Win32Exception();
     }
 
     public void UnregisterHotkey(int id)
     {
         Trace.WriteLine($"Unregistering hotkey: {id}");
-        if (!NativeMethods.UnregisterHotKey(Handle, id))
+        if (!NativeMethods.UnregisterHotKey(_handle, id))
             throw new Win32Exception();
     }
 
     public event EventHandler<KeyPressedEventArgs>? KeyPressed;
 
-    private bool _disposed;
-
     public void Dispose()
     {
-        if (_disposed)
+        if (_handle == 0)
             return;
-        _disposed = true;
 
-        DestroyHandle();
-        GC.SuppressFinalize(this); // NativeWindow has a finalizer; nothing is left for it to do.
+        Hosts.TryRemove(_handle, out _);
+        NativeMethods.DestroyWindow(_handle);
+        _handle = 0;
     }
 }
