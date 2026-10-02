@@ -5,6 +5,7 @@ namespace HolzShots.Input.Keyboard;
 
 internal class HotkeyWindowHost : NativeWindow, IDisposable
 {
+    /// <exception cref="Win32Exception">The native window could not be created.</exception>
     public HotkeyWindowHost() => CreateHandle(new CreateParams()); // create the handle for the window.
 
     public sealed override void CreateHandle(CreateParams cp) => base.CreateHandle(cp);
@@ -29,6 +30,7 @@ internal class HotkeyWindowHost : NativeWindow, IDisposable
         base.WndProc(ref m);
     }
 
+    /// <exception cref="Win32Exception">The system refused the registration, e.g. because the key combination is already in use.</exception>
     public void RegisterHotkey(ModifierKeys modifiers, Keys key, int id)
     {
         Trace.WriteLine($"Registering hotkey: {id} {modifiers} {key}");
@@ -36,6 +38,7 @@ internal class HotkeyWindowHost : NativeWindow, IDisposable
             throw new Win32Exception();
     }
 
+    /// <exception cref="Win32Exception">The system failed to unregister the hotkey, e.g. because the id is unknown.</exception>
     public void UnregisterHotkey(int id)
     {
         Trace.WriteLine($"Unregistering hotkey: {id}");

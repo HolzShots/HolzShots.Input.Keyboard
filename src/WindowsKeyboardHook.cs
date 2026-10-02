@@ -7,6 +7,10 @@ public sealed class WindowsKeyboardHook : KeyboardHook
     private readonly HotkeyWindowHost _window;
     private readonly ISynchronizeInvoke _synchronizer;
 
+    /// <summary>Creates a hook whose native window lives on the thread of <paramref name="synchronizer"/>.</summary>
+    /// <exception cref="ArgumentNullException"><paramref name="synchronizer"/> is <see langword="null"/>.</exception>
+    /// <exception cref="Win32Exception">The native window could not be created.</exception>
+    /// <exception cref="InvalidOperationException">The synchronizer cannot marshal the call, e.g. a <c>Control</c> without a window handle.</exception>
     public WindowsKeyboardHook(ISynchronizeInvoke synchronizer)
     {
         ArgumentNullException.ThrowIfNull(synchronizer);
@@ -19,6 +23,12 @@ public sealed class WindowsKeyboardHook : KeyboardHook
     }
 
     /// <summary>Registers a hotkey in the system.</summary>
+    /// <exception cref="ArgumentNullException"><paramref name="hotkey"/> is <see langword="null"/>.</exception>
+    /// <exception cref="HotkeyRegistrationException">
+    /// The hotkey is already registered (inner exception: <see cref="InvalidOperationException"/>),
+    /// or the system refused the registration (inner exception: <see cref="Win32Exception"/>). The hook is left unchanged.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">The synchronizer cannot marshal the call, e.g. a <c>Control</c> without a window handle.</exception>
     public override void RegisterHotkey(Hotkey hotkey) => InvokeWrapper(() => RegisterHotkeyInternal(hotkey));
 
     private void RegisterHotkeyInternal(Hotkey hotkey)
@@ -41,6 +51,12 @@ public sealed class WindowsKeyboardHook : KeyboardHook
     }
 
     /// <summary>Unregisters a hotkey in the system.</summary>
+    /// <exception cref="ArgumentNullException"><paramref name="hotkey"/> is <see langword="null"/>.</exception>
+    /// <exception cref="HotkeyRegistrationException">
+    /// The hotkey is not registered (inner exception: <see cref="InvalidOperationException"/>),
+    /// or the system failed to unregister it (inner exception: <see cref="Win32Exception"/>). The hotkey stays registered and keeps its subscribers.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">The synchronizer cannot marshal the call, e.g. a <c>Control</c> without a window handle.</exception>
     public override void UnregisterHotkey(Hotkey hotkey) => InvokeWrapper(() => UnregisterHotkeyInternal(hotkey));
 
     private void UnregisterHotkeyInternal(Hotkey hotkey)
@@ -64,6 +80,11 @@ public sealed class WindowsKeyboardHook : KeyboardHook
     }
 
     /// <summary>Unregisters all hotkeys. Every hotkey is attempted; failures are collected and thrown afterwards.</summary>
+    /// <exception cref="HotkeyRegistrationException">
+    /// At least one hotkey could not be unregistered. The inner exception is an <see cref="AggregateException"/> with the individual
+    /// <see cref="HotkeyRegistrationException"/>s; hotkeys that failed stay registered.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">The synchronizer cannot marshal the call, e.g. a <c>Control</c> without a window handle.</exception>
     public override void UnregisterAllHotkeys() => InvokeWrapper(() =>
     {
         List<HotkeyRegistrationException>? failures = null;
@@ -100,6 +121,8 @@ public sealed class WindowsKeyboardHook : KeyboardHook
         ? (T)_synchronizer.Invoke(func, null)!
         : func();
 
+    /// <remarks>Failing to unregister hotkeys does not throw (see <see cref="KeyboardHook.Dispose()"/>).</remarks>
+    /// <exception cref="InvalidOperationException">The synchronizer cannot marshal the call, e.g. a <c>Control</c> without a window handle.</exception>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing); // unregisters all hotkeys

@@ -14,6 +14,8 @@ public class Hotkey : IEquatable<Hotkey>
     public ModifierKeys Modifiers { get; }
     public Keys Key { get; }
 
+    /// <summary>Creates a hotkey from a key and its modifiers.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="key"/> contains modifier bits (anything outside <see cref="Keys.KeyCode"/>).</exception>
     public Hotkey(ModifierKeys modifiers, Keys key)
     {
         if ((key & ~Keys.KeyCode) != 0)
@@ -38,6 +40,7 @@ public class Hotkey : IEquatable<Hotkey>
     }
 
     /// <summary>Parses a hotkey string such as <c>Ctrl+Shift+F8</c>. See <see cref="TryParse"/> for the format.</summary>
+    /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
     /// <exception cref="FormatException">The string is not a valid hotkey.</exception>
     public static Hotkey Parse(string value)
     {
@@ -53,6 +56,7 @@ public class Hotkey : IEquatable<Hotkey>
     /// Modifiers are <c>Ctrl</c>/<c>Control</c>, <c>Alt</c>, <c>Shift</c> and <c>Win</c>/<c>Super</c>; the key is any member of <see cref="Keys"/>.
     /// Exactly one key is required, tokens are separated by <c>+</c>, matching is case-insensitive.
     /// </summary>
+    /// <returns><see langword="true"/> if the string was parsed; <see langword="false"/> if it is not a valid hotkey. Never throws.</returns>
     public static bool TryParse([NotNullWhen(true)] string? value, [NotNullWhen(true)] out Hotkey? hotkey)
     {
         hotkey = null;
@@ -106,6 +110,8 @@ public class Hotkey : IEquatable<Hotkey>
         return Enum.TryParse(name, ignoreCase: true, out key) && (key & ~Keys.KeyCode) == 0;
     }
 
+    /// <summary>Creates a hotkey from the key and modifiers of a key event.</summary>
+    /// <exception cref="ArgumentNullException"><paramref name="e"/> is <see langword="null"/>.</exception>
     public static Hotkey FromKeyboardEvent(KeyEventArgs e)
     {
         ArgumentNullException.ThrowIfNull(e);
