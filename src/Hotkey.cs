@@ -125,34 +125,10 @@ public class Hotkey : IEquatable<Hotkey>
         return sb.ToString();
     }
 
-    /// <remarks> https://stackoverflow.com/questions/91778 </remarks>
-    internal void RemoveAllEventHandlers()
-    {
-        lock (_delegates)
-        {
-            foreach (var e in _delegates)
-                _keyPressed -= e;
-            _delegates.Clear();
-        }
-    }
-
-    private readonly HashSet<EventHandler<HotkeyPressedEventArgs>> _delegates = [];
-    private event EventHandler<HotkeyPressedEventArgs>? _keyPressed;
-
     /// <summary>The hotkey has been pressed.</summary>
-    public event EventHandler<HotkeyPressedEventArgs> KeyPressed
-    {
-        add
-        {
-            _keyPressed += value;
-            _delegates.Add(value);
-        }
-        remove
-        {
-            _keyPressed -= value;
-            _delegates.Remove(value);
-        }
-    }
+    public event EventHandler<HotkeyPressedEventArgs>? KeyPressed;
 
-    internal void InvokePressed(KeyboardHook hook) => _keyPressed?.Invoke(this, new HotkeyPressedEventArgs(hook, this));
+    internal void RemoveAllEventHandlers() => KeyPressed = null;
+
+    internal void InvokePressed(KeyboardHook hook) => KeyPressed?.Invoke(this, new HotkeyPressedEventArgs(hook, this));
 }
