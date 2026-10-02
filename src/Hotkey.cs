@@ -2,11 +2,13 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace HolzShots.Input.Keyboard;
 
 [SettingsSerializeAs(SettingsSerializeAs.String)]
 [TypeConverter(typeof(HotkeyTypeConverter))]
+[JsonConverter(typeof(HotkeyJsonConverter))]
 public class Hotkey : IEquatable<Hotkey>
 {
     private const char KeySeparator = '+';
