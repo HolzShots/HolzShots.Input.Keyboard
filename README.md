@@ -5,20 +5,21 @@
 Usage of `Hotkey` primitives:
 ```csharp
 var hook = KeyboardHookSelector.CreateHookForCurrentPlatform(someForm);
-// someForm can be anything that implements ISynchronizeInvoke
+// someForm can be anything that implements ISynchronizeInvoke.
+// The hook's native window lives on that object's thread, and all registrations are marshalled to it.
 
-var hk = new Hotkey(Input.Keyboard.ModifierKeys.Shift, Keys.F8);
-hk.KeyPressed += (hook, h) => Console.WriteLine($"Hotkey pressed: {h}");
+var hk = new Hotkey(ModifierKeys.Shift, Keys.F8);
+hk.KeyPressed += (sender, e) => Console.WriteLine($"Hotkey pressed: {e.Hotkey}");
 
 hook.RegisterHotkey(hk);
 
-var hk2 = Hotkey.Parse("Shift+F9");
-hk2.KeyPressed += (hook, h) => Console.WriteLine($"Hotkey pressed: {h}");
+var hk2 = Hotkey.Parse("Shift+F9"); // throws FormatException on invalid input, Hotkey.TryParse does not
+hk2.KeyPressed += (sender, e) => Console.WriteLine($"Hotkey pressed: {e.Hotkey}");
 
 hook.RegisterHotkey(hk2);
 
 // Clean up:
-hook.UnregisterHotkey(hk2);
+hook.UnregisterHotkey(hk2); // also removes all KeyPressed subscribers of hk2
 
 hook.UnregisterAllHotkeys();
 ```
