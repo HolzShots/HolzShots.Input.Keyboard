@@ -1,6 +1,5 @@
 namespace HolzShots.Input.Keyboard;
 
-[Serializable]
 public class HotkeyRegistrationException : Exception
 {
     public Hotkey? Hotkey { get; }

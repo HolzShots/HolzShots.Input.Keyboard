@@ -4,7 +4,6 @@ using System.Text;
 
 namespace HolzShots.Input.Keyboard;
 
-[Serializable]
 [SettingsSerializeAs(SettingsSerializeAs.String)]
 [TypeConverter(typeof(HotkeyTypeConverter))]
 public class Hotkey : IEquatable<Hotkey>
@@ -13,9 +12,6 @@ public class Hotkey : IEquatable<Hotkey>
 
     public ModifierKeys Modifiers { get; }
     public Keys Key { get; }
-
-    /// <summary> Do not use. Only there for serialization. </summary>
-    private Hotkey() { }
 
     public Hotkey(ModifierKeys modifiers, Keys key)
     {
