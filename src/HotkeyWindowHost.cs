@@ -17,12 +17,13 @@ internal class HotkeyWindowHost : NativeWindow, IDisposable
         // check if we got a hotkey pressed.
         if (m.Msg == WM_HOTKEY)
         {
-            // get the keys.
+            // wParam is the id the hotkey was registered with, lParam carries the key and the modifiers (without MOD_NOREPEAT).
+            var id = (int)m.WParam;
             var key = (Keys)(((int)m.LParam >> 16) & 0xFFFF);
             var modifier = (ModifierKeys)((int)m.LParam & 0xFFFF);
 
             // invoke the event to notify the parent.
-            KeyPressed?.Invoke(this, new KeyPressedEventArgs(modifier, key));
+            KeyPressed?.Invoke(this, new KeyPressedEventArgs(id, modifier, key));
             return;
         }
         base.WndProc(ref m);

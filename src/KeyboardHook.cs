@@ -16,9 +16,7 @@ public abstract class KeyboardHook : IDisposable
     {
         ArgumentNullException.ThrowIfNull(args);
 
-        var key = args.GetIdentifier();
-
-        if (RegisteredKeys.TryGetValue(key, out var hk) && hk is not null)
+        if (RegisteredKeys.TryGetValue(args.Id, out var hk))
             hk.InvokePressed(this);
     }
 
