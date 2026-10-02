@@ -12,7 +12,7 @@ public class HotkeyTypeConverter : TypeConverter
         if (value is int i)
             return Hotkey.FromHashCode(i);
         if (value is string s)
-            return Hotkey.Parse(s);
+            return Hotkey.TryParse(s, out var hotkey) ? hotkey : null; // An empty or invalid setting means "no hotkey".
 
         Debug.Fail("Could not convert hotkeys properly. You should debug this."); // Something is wrong here.
         return base.ConvertFrom(context, culture, value);
