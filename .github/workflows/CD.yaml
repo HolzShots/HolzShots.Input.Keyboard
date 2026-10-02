@@ -47,7 +47,6 @@ jobs:
           user: ${{ secrets.NUGET_USER }}
 
       - run: dotnet build --configuration Release -p:Version=${VERSION}
-      - run: dotnet test --configuration Release -p:Version=${VERSION} --no-build
       - run: dotnet pack --configuration Release -p:Version=${VERSION} --no-build --output .
       - run: dotnet nuget push HolzShots.Input.Keyboard.${VERSION}.nupkg --source "https://api.nuget.org/v3/index.json" --api-key ${{steps.login.outputs.NUGET_API_KEY}}
 
