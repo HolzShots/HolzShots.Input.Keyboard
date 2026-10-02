@@ -6,10 +6,11 @@ public sealed class WindowsKeyboardHook : KeyboardHook
 {
     private readonly HotkeyWindowHost _window;
     private readonly ISynchronizeInvoke _synchronizer;
-    private readonly Lock _lockObj = new();
 
     public WindowsKeyboardHook(ISynchronizeInvoke synchronizer)
     {
+        ArgumentNullException.ThrowIfNull(synchronizer);
+
         _window = new HotkeyWindowHost();
         _window.KeyPressed += KeyPressed; // register the event of the inner native window.
         _synchronizer = synchronizer;
@@ -60,25 +61,23 @@ public sealed class WindowsKeyboardHook : KeyboardHook
         }
     }
 
-    public override void UnregisterAllHotkeys()
+    public override void UnregisterAllHotkeys() => InvokeWrapper(() =>
     {
-        lock (_lockObj)
-        {
-            // unregister all the registered hotkeys.
-            var toUnregister = new List<Hotkey>(RegisteredKeys.Values);
-            foreach (var key in toUnregister)
-                UnregisterHotkey(key);
-        }
-    }
+        // unregister all the registered hotkeys.
+        var toUnregister = new List<Hotkey>(RegisteredKeys.Values);
+        foreach (var key in toUnregister)
+            UnregisterHotkey(key);
+    });
 
+    /// <summary>Runs <paramref name="action"/> synchronously on the synchronizer's thread, so exceptions reach the caller.</summary>
     private void InvokeWrapper(Action action)
     {
-        if (_synchronizer == null || !_synchronizer.InvokeRequired)
+        if (!_synchronizer.InvokeRequired)
         {
             action();
             return;
         }
-        _synchronizer.BeginInvoke(action, null);
+        _synchronizer.Invoke(action, null);
     }
 
     private bool _isDisposed;
