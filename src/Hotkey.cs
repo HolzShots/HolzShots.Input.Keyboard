@@ -80,33 +80,24 @@ public class Hotkey : IEquatable<Hotkey>
     {
         ArgumentNullException.ThrowIfNull(e);
 
-        var modKeys = ModifierKeys.None;
-        var k = e.KeyCode;
+        var key = e.KeyCode;
 
-        if (e.Modifiers.HasFlag(Keys.Control))
-        {
-            if (k == Keys.None)
-                return new Hotkey(ModifierKeys.None, Keys.ControlKey);
-            modKeys |= ModifierKeys.Control;
-        }
+        // A modifier key pressed on its own is the hotkey itself, not a modifier of something else.
+        // KeyCode is never Keys.None in that case; it is the virtual key of the modifier.
+        if (key is Keys.ControlKey or Keys.LControlKey or Keys.RControlKey
+                or Keys.ShiftKey or Keys.LShiftKey or Keys.RShiftKey
+                or Keys.Menu or Keys.LMenu or Keys.RMenu)
+            return new Hotkey(ModifierKeys.None, key);
 
-        if (e.Modifiers.HasFlag(Keys.Shift))
-        {
-            if (k == Keys.None)
-                return new Hotkey(ModifierKeys.None, Keys.ShiftKey);
-            modKeys |= ModifierKeys.Shift;
-        }
+        var modifiers = ModifierKeys.None;
+        if (e.Control)
+            modifiers |= ModifierKeys.Control;
+        if (e.Shift)
+            modifiers |= ModifierKeys.Shift;
+        if (e.Alt)
+            modifiers |= ModifierKeys.Alt;
 
-        if (e.Modifiers.HasFlag(Keys.Alt))
-        {
-            if (k == Keys.None)
-                return new Hotkey(ModifierKeys.None, Keys.Menu);
-            modKeys |= ModifierKeys.Alt;
-        }
-
-        return k == Keys.None
-                ? new Hotkey(modKeys, k)
-                : new Hotkey(modKeys, k);
+        return new Hotkey(modifiers, key);
     }
 
     public override string ToString()
