@@ -112,7 +112,7 @@ public class Hotkey : IEquatable<Hotkey>
         if (Modifiers.HasFlag(ModifierKeys.Win))
             sb.Append("Win").Append(KeySeparator);
 
-        sb.Append(Key == Keys.Space ? "Space" : Key.ToString());
+        sb.Append(Key.ToString());
         return sb.ToString();
     }
 
