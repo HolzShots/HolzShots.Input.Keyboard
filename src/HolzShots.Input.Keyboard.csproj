@@ -20,7 +20,6 @@
     <LangVersion>latest</LangVersion>
     <IsAotCompatible>true</IsAotCompatible>
 
-    <MinimumPlatformVersion>10.0.17763.0</MinimumPlatformVersion>
 
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
