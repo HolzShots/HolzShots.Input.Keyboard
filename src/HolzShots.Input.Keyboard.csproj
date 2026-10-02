@@ -18,7 +18,6 @@
     <PackageProjectUrl>https://holzshots.net</PackageProjectUrl>
 
     <LangVersion>latest</LangVersion>
-    <ErrorReport>none</ErrorReport>
     <IsAotCompatible>true</IsAotCompatible>
 
     <MinimumPlatformVersion>10.0.17763.0</MinimumPlatformVersion>
