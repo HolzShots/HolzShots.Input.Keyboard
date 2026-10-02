@@ -45,28 +45,15 @@ internal class HotkeyWindowHost : NativeWindow, IDisposable
 
     public event EventHandler<KeyPressedEventArgs>? KeyPressed;
 
-    #region IDisposable Members
-
     private bool _disposed;
 
     public void Dispose()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
+        if (_disposed)
+            return;
+        _disposed = true;
+
+        DestroyHandle();
+        GC.SuppressFinalize(this); // NativeWindow has a finalizer; nothing is left for it to do.
     }
-
-#pragma warning disable RECS0154 // Parameter is never used
-    protected virtual void Dispose(bool disposing)
-#pragma warning restore RECS0154 // Parameter is never used
-    {
-        if (!_disposed)
-        {
-            DestroyHandle();
-            _disposed = true;
-        }
-    }
-
-    ~HotkeyWindowHost() => Dispose(false);
-
-    #endregion
 }

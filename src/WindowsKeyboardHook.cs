@@ -86,14 +86,16 @@ public sealed class WindowsKeyboardHook : KeyboardHook
         ? (T)_synchronizer.Invoke(func, null)!
         : func();
 
-    private bool _isDisposed;
     protected override void Dispose(bool disposing)
     {
-        if (!_isDisposed)
+        base.Dispose(disposing); // unregisters all hotkeys
+        if (!disposing)
+            return;
+
+        InvokeWrapper(() =>
         {
-            base.Dispose(disposing); // unregisters all hotkeys
-            _window.Dispose(); // dispose the inner native window.
-            _isDisposed = true;
-        }
+            _window.KeyPressed -= KeyPressed;
+            _window.Dispose(); // the native window must be destroyed on the thread that owns it.
+        });
     }
 }

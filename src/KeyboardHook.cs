@@ -25,20 +25,20 @@ public abstract class KeyboardHook : IDisposable
     private bool _isDisposed;
     public void Dispose()
     {
+        if (_isDisposed)
+            return;
+        _isDisposed = true;
+
         Dispose(true);
         GC.SuppressFinalize(this);
     }
 
+    /// <remarks>Only called once. Derived classes must not touch other managed objects when <paramref name="disposing"/> is false.</remarks>
     protected virtual void Dispose(bool disposing)
     {
-        if (!_isDisposed)
-        {
+        if (disposing)
             UnregisterAllHotkeys();
-            _isDisposed = true;
-        }
     }
-
-    ~KeyboardHook() => Dispose(false);
 
     #endregion
 }
