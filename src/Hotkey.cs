@@ -7,7 +7,7 @@ namespace HolzShots.Input.Keyboard;
 [Serializable]
 [SettingsSerializeAs(SettingsSerializeAs.String)]
 [TypeConverter(typeof(HotkeyTypeConverter))]
-public class Hotkey
+public class Hotkey : IEquatable<Hotkey>
 {
     private const char KeySeparator = '+';
 
@@ -19,17 +19,23 @@ public class Hotkey
 
     public Hotkey(ModifierKeys modifiers, Keys key)
     {
+        if ((key & ~Keys.KeyCode) != 0)
+            throw new ArgumentOutOfRangeException(nameof(key), key, "Key must not contain modifier bits. Use the modifiers parameter instead.");
+
         Modifiers = modifiers;
         Key = key;
     }
 
     public bool IsNone() => Modifiers == ModifierKeys.None && Key == Keys.None;
 
+    public override bool Equals(object? obj) => Equals(obj as Hotkey);
+    public bool Equals(Hotkey? other) => other is not null && Modifiers == other.Modifiers && Key == other.Key;
+
     public override int GetHashCode() => (int)Key << 16 | (int)Modifiers;
 
     internal static Hotkey FromHashCode(int hashCode)
     {
-        var key = hashCode >> 16;
+        var key = hashCode >>> 16;
         var mod = hashCode & 0xFFFF;
         return new Hotkey((ModifierKeys)mod, (Keys)key);
     }
